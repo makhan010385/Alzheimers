@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QSAR Alzheimer's Disease Prediction System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-bg: #ecf0f1;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 1400px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            background: var(--light-bg);
+            border: none;
+            padding: 15px;
+        }
+        
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin: 0 5px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            padding: 30px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: var(--secondary-color);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .stats-card h3 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stats-card p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .prediction-result {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .model-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+        
+        .accuracy-high { background: var(--success-color); color: white; }
+        .accuracy-medium { background: var(--warning-color); color: white; }
+        .accuracy-low { background: var(--danger-color); color: white; }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+        }
+        
+        .progress-bar {
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-brain"></i> QSAR Alzheimer's Disease Prediction System</h1>
+            <p>Machine Learning-based Drug Discovery Platform for Alzheimer's Disease Compounds</p>
+        </div>
+        
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button">
+                    <i class="fas fa-database"></i> Dataset Overview
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="preprocessing-tab" data-bs-toggle="tab" data-bs-target="#preprocessing" type="button">
+                    <i class="fas fa-cogs"></i> Data Preprocessing
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="features-tab" data-bs-toggle="tab" data-bs-target="#features" type="button">
+                    <i class="fas fa-flask"></i> Feature Engineering
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="models-tab" data-bs-toggle="tab" data-bs-target="#models" type="button">
+                    <i class="fas fa-robot"></i> ML Models
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="validation-tab" data-bs-toggle="tab" data-bs-target="#validation" type="button">
+                    <i class="fas fa-check-circle"></i> Model Validation
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="comparison-tab" data-bs-toggle="tab" data-bs-target="#comparison" type="button">
+                    <i class="fas fa-chart-bar"></i> Performance Comparison
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="prediction-tab" data-bs-toggle="tab" data-bs-target="#prediction" type="button">
+                    <i class="fas fa-search"></i> Predict Compound
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="explainable-tab" data-bs-toggle="tab" data-bs-target="#explainable" type="button">
+                    <i class="fas fa-lightbulb"></i> Explainable AI
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="mainTabContent">
+            <!-- Dataset Overview Tab -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-database"></i> Dataset Overview</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <button class="btn btn-primary btn-lg" onclick="loadDataset()">
+                                        <i class="fas fa-play"></i> Load Dataset
+                                    </button>
+                                </div>
+                                <div id="overviewContent">
+                                    <div class="text-center text-muted">
+                                        <p>Click "Load Dataset" to view dataset information</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Preprocessing Tab -->
+            <div class="tab-pane fade" id="preprocessing" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-cogs"></i> Data Preprocessing</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-info-circle"></i> Activity Labeling Rule Applied:</h6>
+                                    <ul class="mb-0">
+                                        <li><strong>ACTIVE (1):</strong> IC50 &lt; 10 µM</li>
+                                        <li><strong>INACTIVE (0):</strong> IC50 ≥ 10 µM</li>
+                                    </ul>
+                                </div>
+                                <div class="text-center mb-4">
+                                    <button class="btn btn-primary btn-lg" onclick="preprocessData()">
+                                        <i class="fas fa-play"></i> Preprocess Data
+                                    </button>
+                                </div>
+                                <div id="preprocessingContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature Engineering Tab -->
+            <div class="tab-pane fade" id="features" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-flask"></i> Feature Engineering with RDKit</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <button class="btn btn-primary btn-lg" onclick="performFeatureEngineering()">
+                                        <i class="fas fa-play"></i> Extract Features
+                                    </button>
+                                </div>
+                                <div id="featuresContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ML Models Tab -->
+            <div class="tab-pane fade" id="models" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-robot"></i> Machine Learning Models (8 Models)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">Logistic Regression</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">Support Vector Machine</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">Random Forest</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">Decision Tree</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">K-Nearest Neighbors</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">Naive Bayes</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">Gradient Boosting</div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="model-badge accuracy-high">AdaBoost</div>
+                                    </div>
+                                </div>
+                                <div class="text-center mb-4">
+                                    <button class="btn btn-primary btn-lg" onclick="trainModels()">
+                                        <i class="fas fa-play"></i> Train All Models
+                                    </button>
+                                </div>
+                                <div id="modelsContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Model Validation Tab -->
+            <div class="tab-pane fade" id="validation" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-check-circle"></i> Model Validation & Performance</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <button class="btn btn-primary btn-lg" onclick="evaluateModels()">
+                                        <i class="fas fa-play"></i> Evaluate Models
+                                    </button>
+                                </div>
+                                <div id="validationContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Comparison Tab -->
+            <div class="tab-pane fade" id="comparison" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-bar"></i> Model Performance Comparison</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <button class="btn btn-primary btn-lg" onclick="compareModels()">
+                                        <i class="fas fa-play"></i> Compare Performance
+                                    </button>
+                                </div>
+                                <div id="comparisonContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prediction Tab -->
+            <div class="tab-pane fade" id="prediction" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-search"></i> Predict Compound Activity</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="smilesInput" class="form-label">SMILES Notation:</label>
+                                            <textarea class="form-control" id="smilesInput" rows="3" placeholder="Enter SMILES notation..."></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="modelSelect" class="form-label">Select Model:</label>
+                                            <select class="form-select" id="modelSelect">
+                                                <option value="">Choose a model...</option>
+                                                <option value="Logistic Regression">Logistic Regression</option>
+                                                <option value="SVM">Support Vector Machine</option>
+                                                <option value="Random Forest">Random Forest</option>
+                                                <option value="Decision Tree">Decision Tree</option>
+                                                <option value="KNN">K-Nearest Neighbors</option>
+                                                <option value="Naive Bayes">Naive Bayes</option>
+                                                <option value="Gradient Boosting">Gradient Boosting</option>
+                                                <option value="AdaBoost">AdaBoost</option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-primary btn-lg w-100" onclick="predictCompound()">
+                                            <i class="fas fa-search"></i> Predict Activity
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="predictionResult"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Explainable AI Tab -->
+            <div class="tab-pane fade" id="explainable" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-lightbulb"></i> Explainable AI - Counterfactual Analysis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-info-circle"></i> What are Counterfactuals?</h6>
+                                    <p class="mb-0">Counterfactual explanations show minimal changes needed to make a compound switch from INACTIVE to ACTIVE (or vice versa), helping understand what molecular features drive activity.</p>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cfSmilesInput" class="form-label">SMILES Notation:</label>
+                                            <textarea class="form-control" id="cfSmilesInput" rows="3" placeholder="Enter SMILES notation..."></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="cfModelSelect" class="form-label">Select Model:</label>
+                                            <select class="form-select" id="cfModelSelect">
+                                                <option value="">Choose a model...</option>
+                                                <option value="Logistic Regression">Logistic Regression</option>
+                                                <option value="SVM">Support Vector Machine</option>
+                                                <option value="Random Forest">Random Forest</option>
+                                                <option value="Decision Tree">Decision Tree</option>
+                                                <option value="KNN">K-Nearest Neighbors</option>
+                                                <option value="Naive Bayes">Naive Bayes</option>
+                                                <option value="Gradient Boosting">Gradient Boosting</option>
+                                                <option value="AdaBoost">AdaBoost</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="targetClass" class="form-label">Target Activity:</label>
+                                            <select class="form-select" id="targetClass">
+                                                <option value="1">ACTIVE</option>
+                                                <option value="0">INACTIVE</option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-primary btn-lg w-100" onclick="generateCounterfactual()">
+                                            <i class="fas fa-lightbulb"></i> Generate Counterfactual
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="counterfactualResult"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Utility functions
+        function showLoading(elementId) {
+            document.getElementById(elementId).innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Processing...</p>
+                </div>
+            `;
+        }
+
+        function showError(elementId, message) {
+            document.getElementById(elementId).innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                </div>
+            `;
+        }
+
+        // Dataset Overview
+        async function loadDataset() {
+            console.log('loadDataset function called');
+            showLoading('overviewContent');
+            try {
+                console.log('Making API call to /load_data');
+                const response = await fetch('/load_data');
+                const data = await response.json();
+                console.log('API response:', data);
+                
+                if (data.success) {
+                    console.log('Data success, updating UI');
+                    const overview = data.overview;
+                    document.getElementById('overviewContent').innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-database"></i> Dataset Loaded Successfully!</h6>
+                            <p class="mb-0">Dataset contains <strong>${overview.total_records}</strong> records and <strong>${overview.total_columns}</strong> columns</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3>${overview.total_records}</h3>
+                                    <p>Total Records</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3>${overview.total_columns}</h3>
+                                    <p>Total Columns</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3>${overview.active_count}</h3>
+                                    <p>Active Compounds</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card">
+                                    <h3>${overview.inactive_count}</h3>
+                                    <p>Inactive Compounds</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-columns"></i> Dataset Columns (${overview.total_columns} total)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Column Name</th>
+                                                    <th>Data Type</th>
+                                                    <th>Non-Null Count</th>
+                                                    <th>Null Count</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${overview.column_details.map(col => `
+                                                    <tr>
+                                                        <td><strong>${col.name}</strong></td>
+                                                        <td><span class="badge bg-info">${col.type}</span></td>
+                                                        <td>${col.non_null_count}</td>
+                                                        <td>${col.null_count}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h6>Column Names Overview:</h6>
+                            <div class="d-flex flex-wrap">
+                                ${overview.columns.map(col => `<span class="badge bg-secondary m-1">${col}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h6>Sample Data:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ChEMBL_ID</th>
+                                            <th>SMILES Notation</th>
+                                            <th>IC50 (µM)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${overview.sample_data.slice(0, 5).map(row => `
+                                            <tr>
+                                                <td>${row.ChEMBL_ID}</td>
+                                                <td><code>${row['SMILES Notation']}</code></td>
+                                                <td>${row['IC50 (µM)']}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    console.log('API returned error:', data.error);
+                    showError('overviewContent', data.error);
+                }
+            } catch (error) {
+                console.log('JavaScript error:', error);
+                showError('overviewContent', error.message);
+            }
+        }
+
+        // Data Preprocessing
+        async function preprocessData() {
+            showLoading('preprocessingContent');
+            try {
+                const response = await fetch('/preprocess');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const info = data.info;
+                    document.getElementById('preprocessingContent').innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Preprocessing Completed Successfully!</h6>
+                            <p class="mb-0">Dataset successfully converted into a binary classification problem.</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>Processing Statistics</h6>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Total Compounds:</strong> ${info.total_compounds}</li>
+                                            <li><strong>Valid Compounds:</strong> ${info.valid_compounds}</li>
+                                            <li><strong>Training Samples:</strong> ${info.training_samples}</li>
+                                            <li><strong>Testing Samples:</strong> ${info.testing_samples}</li>
+                                            <li><strong>Final Feature Count:</strong> ${info.feature_count} (PCA components)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>Activity Distribution</h6>
+                                        <div class="progress mb-3">
+                                            <div class="progress-bar bg-success" style="width: ${(info.activity_distribution.active/(info.activity_distribution.active+info.activity_distribution.inactive)*100).toFixed(1)}%">
+                                                Active: ${info.activity_distribution.active}
+                                            </div>
+                                            <div class="progress-bar bg-danger" style="width: ${(info.activity_distribution.inactive/(info.activity_distribution.active+info.activity_distribution.inactive)*100).toFixed(1)}%">
+                                                Inactive: ${info.activity_distribution.inactive}
+                                            </div>
+                                        </div>
+                                        <h6>PCA Explained Variance</h6>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: ${(info.pca_explained_variance.reduce((a, b) => a + b, 0) * 100).toFixed(1)}%">
+                                                ${(info.pca_explained_variance.reduce((a, b) => a + b, 0) * 100).toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    showError('preprocessingContent', data.error);
+                }
+            } catch (error) {
+                showError('preprocessingContent', error.message);
+            }
+        }
+
+        // Feature Engineering
+        async function performFeatureEngineering() {
+            showLoading('featuresContent');
+            try {
+                const response = await fetch('/feature_engineering');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const info = data.info;
+                    document.getElementById('featuresContent').innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Feature Engineering Completed!</h6>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>2D Descriptors Used:</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            ${info.descriptors_used.map(desc => `<li><i class="fas fa-check text-success"></i> ${desc}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>Morgan Fingerprints:</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li><strong>Type:</strong> ${info.fingerprint_config.type}</li>
+                                            <li><strong>Radius:</strong> ${info.fingerprint_config.radius}</li>
+                                            <li><strong>Bit Size:</strong> ${info.fingerprint_config.bit_size}</li>
+                                            <li><strong>Purpose:</strong> Captures structural information (very important for QSAR)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>Descriptor Statistics:</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        ${Object.entries(info.descriptor_statistics).map(([name, stats]) => `
+                                            <div class="mb-3">
+                                                <strong>${name}</strong>
+                                                <div class="row text-center">
+                                                    <div class="col-3">
+                                                        <small>Mean</small><br>${stats.mean.toFixed(2)}
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <small>Std</small><br>${stats.std.toFixed(2)}
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <small>Min</small><br>${stats.min.toFixed(2)}
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <small>Max</small><br>${stats.max.toFixed(2)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>Final Feature Space:</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li><strong>Combined:</strong> Descriptors + Fingerprints</li>
+                                            <li><strong>Total Features:</strong> ${info.total_features}</li>
+                                            <li><strong>PCA Applied:</strong> Reduced to ${info.pca_components} components</li>
+                                            <li><strong>Variance Explained:</strong> ${(info.pca_variance_explained * 100).toFixed(1)}%</li>
+                                            <li><strong>Purpose:</strong> Efficiency & stability</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    showError('featuresContent', data.error);
+                }
+            } catch (error) {
+                showError('featuresContent', error.message);
+            }
+        }
+
+        // Train Models
+        async function trainModels() {
+            showLoading('modelsContent');
+            try {
+                const response = await fetch('/train_models');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const results = data.results;
+                    document.getElementById('modelsContent').innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> All 8 Models Trained Successfully!</h6>
+                        </div>
+                        <div class="row">
+                            ${Object.entries(results).map(([name, result]) => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6>${name}</h6>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" style="width: ${(result.training_accuracy * 100).toFixed(1)}%">
+                                                    Training Accuracy: ${(result.training_accuracy * 100).toFixed(1)}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    showError('modelsContent', data.error);
+                }
+            } catch (error) {
+                showError('modelsContent', error.message);
+            }
+        }
+
+        // Evaluate Models
+        async function evaluateModels() {
+            showLoading('validationContent');
+            try {
+                const response = await fetch('/evaluate_models');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const results = data.results;
+                    let html = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Model Validation Completed!</h6>
+                        </div>
+                        <div class="row">
+                    `;
+                    
+                    Object.entries(results).forEach(([name, result]) => {
+                        const accuracy = (result.test_accuracy * 100).toFixed(1);
+                        const accuracyClass = accuracy >= 80 ? 'bg-success' : accuracy >= 70 ? 'bg-warning' : 'bg-danger';
+                        
+                        html += `
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>${name}</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <strong>Test Accuracy: </strong>
+                                            <span class="badge ${accuracyClass}">${accuracy}%</span>
+                                        </div>
+                                        <button class="btn btn-sm btn-primary" onclick="showConfusionMatrix('${name}')">
+                                            <i class="fas fa-chart-pie"></i> Show Confusion Matrix
+                                        </button>
+                                        <div id="cm_${name.replace(/\s+/g, '_')}" class="mt-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    document.getElementById('validationContent').innerHTML = html;
+                } else {
+                    showError('validationContent', data.error);
+                }
+            } catch (error) {
+                showError('validationContent', error.message);
+            }
+        }
+
+        // Show Confusion Matrix
+        async function showConfusionMatrix(modelName) {
+            const elementId = `cm_${modelName.replace(/\s+/g, '_')}`;
+            document.getElementById(elementId).innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>';
+            
+            try {
+                const response = await fetch(`/plot_confusion_matrix/${encodeURIComponent(modelName)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById(elementId).innerHTML = `
+                        <img src="data:image/png;base64,${data.plot_url}" class="img-fluid" alt="Confusion Matrix">
+                    `;
+                } else {
+                    document.getElementById(elementId).innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                document.getElementById(elementId).innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Compare Models
+        async function compareModels() {
+            showLoading('comparisonContent');
+            try {
+                const response = await fetch('/compare_models');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const comparison = data.comparison;
+                    document.getElementById('comparisonContent').innerHTML = `
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Performance Comparison Complete!</h6>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Model</th>
+                                        <th>Test Accuracy</th>
+                                        <th>Training Accuracy</th>
+                                        <th>Performance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${comparison.map((model, index) => {
+                                        const accuracy = (model.accuracy * 100).toFixed(1);
+                                        const badgeClass = accuracy >= 80 ? 'accuracy-high' : accuracy >= 70 ? 'accuracy-medium' : 'accuracy-low';
+                                        return `
+                                            <tr>
+                                                <td><strong>#${index + 1}</strong></td>
+                                                <td>${model.model}</td>
+                                                <td><span class="badge ${badgeClass}">${accuracy}%</span></td>
+                                                <td>${(model.train_accuracy * 100).toFixed(1)}%</td>
+                                                <td>
+                                                    <div class="progress" style="height: 20px;">
+                                                        <div class="progress-bar ${badgeClass.replace('accuracy-', 'bg-')}" style="width: ${accuracy}%">
+                                                            ${accuracy}%
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        </div>
+                    `;
+                    
+                    // Create performance chart
+                    const ctx = document.getElementById('performanceChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: comparison.map(m => m.model),
+                            datasets: [{
+                                label: 'Test Accuracy (%)',
+                                data: comparison.map(m => (m.accuracy * 100).toFixed(1)),
+                                backgroundColor: comparison.map(m => {
+                                    const acc = m.accuracy * 100;
+                                    return acc >= 80 ? 'rgba(39, 174, 96, 0.8)' : acc >= 70 ? 'rgba(243, 156, 18, 0.8)' : 'rgba(231, 76, 60, 0.8)';
+                                }),
+                                borderColor: comparison.map(m => {
+                                    const acc = m.accuracy * 100;
+                                    return acc >= 80 ? 'rgb(39, 174, 96)' : acc >= 70 ? 'rgb(243, 156, 18)' : 'rgb(231, 76, 60)';
+                                }),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Model Performance Comparison'
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    showError('comparisonContent', data.error);
+                }
+            } catch (error) {
+                showError('comparisonContent', error.message);
+            }
+        }
+
+        // Predict Compound
+        async function predictCompound() {
+            const smiles = document.getElementById('smilesInput').value.trim();
+            const model = document.getElementById('modelSelect').value;
+            
+            if (!smiles || !model) {
+                document.getElementById('predictionResult').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Please enter both SMILES notation and select a model.
+                    </div>
+                `;
+                return;
+            }
+            
+            document.getElementById('predictionResult').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Predicting...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ smiles, model })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const result = data.result;
+                    const activityClass = result.activity === 'ACTIVE' ? 'success' : 'danger';
+                    const probability = result.probability ? (result.probability[result.prediction] * 100).toFixed(1) : 'N/A';
+                    
+                    document.getElementById('predictionResult').innerHTML = `
+                        <div class="prediction-result">
+                            <h6><i class="fas fa-search"></i> Prediction Result</h6>
+                            <div class="text-center mb-3">
+                                <span class="badge bg-${activityClass} fs-6 p-3">${result.activity}</span>
+                            </div>
+                            <ul class="list-unstyled">
+                                <li><strong>Model Used:</strong> ${model}</li>
+                                <li><strong>Prediction:</strong> ${result.activity}</li>
+                                <li><strong>Confidence:</strong> ${probability}%</li>
+                                <li><strong>Binary Value:</strong> ${result.prediction}</li>
+                            </ul>
+                            ${result.probability ? `
+                                <div class="mt-3">
+                                    <h6>Probability Distribution:</h6>
+                                    <div class="progress" style="height: 30px;">
+                                        <div class="progress-bar bg-danger" style="width: ${(result.probability[0] * 100).toFixed(1)}%">
+                                            INACTIVE: ${(result.probability[0] * 100).toFixed(1)}%
+                                        </div>
+                                        <div class="progress-bar bg-success" style="width: ${(result.probability[1] * 100).toFixed(1)}%">
+                                            ACTIVE: ${(result.probability[1] * 100).toFixed(1)}%
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('predictionResult').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('predictionResult').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Generate Counterfactual
+        async function generateCounterfactual() {
+            const smiles = document.getElementById('cfSmilesInput').value.trim();
+            const model = document.getElementById('cfModelSelect').value;
+            const targetClass = parseInt(document.getElementById('targetClass').value);
+            
+            if (!smiles || !model) {
+                document.getElementById('counterfactualResult').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Please enter both SMILES notation and select a model.
+                    </div>
+                `;
+                return;
+            }
+            
+            document.getElementById('counterfactualResult').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Generating counterfactual explanation...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/counterfactual', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ smiles, model, target_class: targetClass })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const result = data.result;
+                    
+                    if (result.counterfactual_found) {
+                        document.getElementById('counterfactualResult').innerHTML = `
+                            <div class="prediction-result">
+                                <h6><i class="fas fa-lightbulb"></i> Counterfactual Analysis</h6>
+                                
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h6>Original Prediction</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Activity:</strong> <span class="badge bg-${result.original_prediction.activity === 'ACTIVE' ? 'success' : 'danger'}">${result.original_prediction.activity}</span></p>
+                                        <p><strong>Confidence:</strong> ${result.original_prediction.probability ? (result.original_prediction.probability[result.original_prediction.prediction] * 100).toFixed(1) + '%' : 'N/A'}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header bg-success text-white">
+                                        <h6><i class="fas fa-magic"></i> Counterfactual Found!</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Required Modification:</strong> ${result.counterfactual.modification}</p>
+                                        <p><strong>New Activity:</strong> <span class="badge bg-success">${result.counterfactual.activity}</span></p>
+                                        <p><strong>New Confidence:</strong> ${result.counterfactual.probability ? (result.counterfactual.probability[targetClass] * 100).toFixed(1) + '%' : 'N/A'}</p>
+                                        
+                                        <div class="mt-3">
+                                            <h6>Modified Descriptor Values:</h6>
+                                            <div class="row text-center">
+                                                <div class="col-3">
+                                                    <small>MolWt</small><br>${result.counterfactual.modified_features[0].toFixed(1)}
+                                                </div>
+                                                <div class="col-3">
+                                                    <small>LogP</small><br>${result.counterfactual.modified_features[1].toFixed(2)}
+                                                </div>
+                                                <div class="col-3">
+                                                    <small>HBD</small><br>${result.counterfactual.modified_features[2].toFixed(0)}
+                                                </div>
+                                                <div class="col-3">
+                                                    <small>HBA</small><br>${result.counterfactual.modified_features[3].toFixed(0)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        document.getElementById('counterfactualResult').innerHTML = `
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle"></i> ${result.message}</h6>
+                                <p class="mb-0">Original prediction: <span class="badge bg-${result.original_prediction.activity === 'ACTIVE' ? 'success' : 'danger'}">${result.original_prediction.activity}</span></p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    document.getElementById('counterfactualResult').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('counterfactualResult').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-load dataset when page loads
+            loadDataset();
+        });
+    </script>
+</body>
+</html>
